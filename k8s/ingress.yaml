@@ -1,0 +1,28 @@
+# Optional: Ingress for external access
+# Requires ingress controller (e.g. GKE Ingress) and optionally a load balancer
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: texas-holdem-ingress
+  namespace: texas-holdem
+  annotations:
+    kubernetes.io/ingress.class: "gce"
+    # For HTTPS: kubernetes.io/ingress.global-static-ip-name: "your-static-ip"
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: texas-holdem-backend
+                port:
+                  number: 80
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: texas-holdem-frontend
+                port:
+                  number: 80
