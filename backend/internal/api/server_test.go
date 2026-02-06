@@ -47,11 +47,24 @@ func TestCORSPreflight(t *testing.T) {
 			wantAllowOrigin: "http://34.58.122.79",
 			wantVary:       "Origin",
 		},
+		{
+			name:           "GET request from allowed origin with success response",
+			origin:         "http://34.58.122.79",
+			method:         http.MethodGet,
+			wantStatus:     http.StatusOK,
+			wantAllowOrigin: "http://34.58.122.79",
+			wantVary:       "Origin",
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			req := httptest.NewRequest(tt.method, "/api/v1/evaluate", nil)
+			// Use /health endpoint for GET tests, /api/v1/evaluate for POST/OPTIONS tests
+			path := "/api/v1/evaluate"
+			if tt.method == http.MethodGet {
+				path = "/health"
+			}
+			req := httptest.NewRequest(tt.method, path, nil)
 			if tt.origin != "" {
 				req.Header.Set("Origin", tt.origin)
 			}
