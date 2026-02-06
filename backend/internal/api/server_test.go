@@ -3,10 +3,16 @@ package api
 import (
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 )
 
 func TestCORSPreflight(t *testing.T) {
+	// Set up environment for testing
+	oldOrigin := os.Getenv("ALLOWED_ORIGIN")
+	os.Setenv("ALLOWED_ORIGIN", "http://34.58.122.79")
+	defer os.Setenv("ALLOWED_ORIGIN", oldOrigin)
+
 	s := New()
 
 	tests := []struct {
@@ -65,13 +71,20 @@ func TestCORSPreflight(t *testing.T) {
 				t.Errorf("Vary = %q, want %q", got, tt.wantVary)
 			}
 
-			// For allowed origins, check other CORS headers
-			if tt.wantAllowOrigin != "" && tt.method == http.MethodOptions {
+			// For allowed origins, check other CORS headers are present
+			if tt.wantAllowOrigin != "" {
 				if got := rec.Header().Get("Access-Control-Allow-Methods"); got == "" {
-					t.Error("Access-Control-Allow-Methods should be set")
+					t.Error("Access-Control-Allow-Methods should be set for allowed origin")
 				}
 				if got := rec.Header().Get("Access-Control-Allow-Headers"); got == "" {
-					t.Error("Access-Control-Allow-Headers should be set")
+					t.Error("Access-Control-Allow-Headers should be set for allowed origin")
+				}
+
+				// Verify CORS headers are set even on error responses (for POST test)
+				if tt.method == http.MethodPost && rec.Code >= 400 {
+					if rec.Header().Get("Access-Control-Allow-Origin") == "" {
+						t.Error("CORS headers should be present on error responses")
+					}
 				}
 			}
 		})

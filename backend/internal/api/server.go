@@ -3,14 +3,23 @@ package api
 import (
 	"log"
 	"net/http"
+	"os"
 )
 
 type Server struct {
-	mux *http.ServeMux
+	mux          *http.ServeMux
+	allowedOrigin string
 }
 
 func New() *Server {
-	s := &Server{mux: http.NewServeMux()}
+	allowedOrigin := os.Getenv("ALLOWED_ORIGIN")
+	if allowedOrigin == "" {
+		allowedOrigin = "http://34.58.122.79"
+	}
+	s := &Server{
+		mux:          http.NewServeMux(),
+		allowedOrigin: allowedOrigin,
+	}
 	s.mux.HandleFunc("/api/v1/evaluate", s.handleEvaluate)
 	s.mux.HandleFunc("/api/v1/compare", s.handleCompare)
 	s.mux.HandleFunc("/api/v1/probability", s.handleProbability)
@@ -24,8 +33,8 @@ func New() *Server {
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	origin := r.Header.Get("Origin")
 
-	// explicitly allow the frontend origin
-	if origin == "http://34.58.122.79" {
+	// explicitly allow the configured frontend origin
+	if origin == s.allowedOrigin {
 		w.Header().Set("Access-Control-Allow-Origin", origin)
 		w.Header().Set("Vary", "Origin")
 		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
