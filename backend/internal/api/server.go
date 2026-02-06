@@ -33,7 +33,7 @@ func New() *Server {
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	origin := r.Header.Get("Origin")
 
-	// explicitly allow the configured frontend origin
+	// Explicitly allow the configured frontend origin
 	if origin == s.allowedOrigin {
 		w.Header().Set("Access-Control-Allow-Origin", origin)
 		w.Header().Set("Vary", "Origin")
@@ -41,7 +41,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 	}
 
-	// Preflight requests must be answered successfully
+	// Handle OPTIONS preflight requests
 	if r.Method == http.MethodOptions {
 		w.WriteHeader(http.StatusNoContent) // 204
 		return

@@ -40,10 +40,10 @@ func TestCORSPreflight(t *testing.T) {
 			wantVary:       "",
 		},
 		{
-			name:           "POST request from allowed origin",
+			name:           "POST request from allowed origin with error response",
 			origin:         "http://34.58.122.79",
 			method:         http.MethodPost,
-			wantStatus:     http.StatusBadRequest, // will fail due to no body, but that's ok
+			wantStatus:     http.StatusBadRequest, // expected due to missing body
 			wantAllowOrigin: "http://34.58.122.79",
 			wantVary:       "Origin",
 		},
@@ -79,12 +79,14 @@ func TestCORSPreflight(t *testing.T) {
 				if got := rec.Header().Get("Access-Control-Allow-Headers"); got == "" {
 					t.Error("Access-Control-Allow-Headers should be set for allowed origin")
 				}
+			}
 
-				// Verify CORS headers are set even on error responses (for POST test)
-				if tt.method == http.MethodPost && rec.Code >= 400 {
-					if rec.Header().Get("Access-Control-Allow-Origin") == "" {
-						t.Error("CORS headers should be present on error responses")
-					}
+			// Verify CORS headers are set even on error responses
+			// This test specifically checks that non-OPTIONS requests from allowed origins
+			// have CORS headers set, which browsers need on all responses including errors
+			if tt.method == http.MethodPost && tt.wantAllowOrigin != "" && rec.Code >= 400 {
+				if rec.Header().Get("Access-Control-Allow-Origin") == "" {
+					t.Error("CORS headers must be present on error responses for allowed origins")
 				}
 			}
 		})
