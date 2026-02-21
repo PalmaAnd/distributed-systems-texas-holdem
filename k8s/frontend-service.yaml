@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: texas-holdem-frontend-service
+  namespace: texas-holdem # Ensure this matches your deployment's namespace
+spec:
+  selector:
+    app: texas-holdem-frontend # This should match the labels of your frontend pods
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 80        # The port the LoadBalancer will listen on (external)
+      targetPort: 8080 # The port your frontend application is listening on inside the pod
+  # If you want a static IP, you can specify it here after reserving one:
+  # loadBalancerIP: "YOUR_RESERVED_STATIC_IP_ADDRESS"

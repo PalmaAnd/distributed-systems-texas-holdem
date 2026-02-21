@@ -7,7 +7,6 @@ metadata:
     app: texas-holdem
     component: backend
 spec:
-  replicas: 2
   selector:
     matchLabels:
       app: texas-holdem
@@ -25,7 +24,7 @@ spec:
         - name: backend
           # Replace with your image: gcr.io/PROJECT_ID/texas-holdem-backend:latest
           # or YOUR_REGION-docker.pkg.dev/PROJECT_ID/texas-holdem/backend:latest
-          image: texas-holdem-backend:latest
+          image: us-central1-docker.pkg.dev/texasholdeem/texasholdem/backend:1.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080

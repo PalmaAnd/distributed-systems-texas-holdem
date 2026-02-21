@@ -23,7 +23,7 @@ spec:
       containers:
         - name: frontend
           # Replace with your image
-          image: texas-holdem-frontend:latest
+          image: us-central1-docker.pkg.dev/texasholdeem/texasholdem/frontend:1.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
